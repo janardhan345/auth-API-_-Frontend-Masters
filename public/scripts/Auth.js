@@ -41,6 +41,12 @@ const Auth = {
             name: response.name
         })
     }, 
+    logout: () =>{
+        Auth.isLoggedIn = false;
+        Auth.account =null;
+        Auth.updateStatus();
+        Router.go("/");
+    },
     updateStatus() {
         if (Auth.isLoggedIn && Auth.account) {
             document.querySelectorAll(".logged_out").forEach(
