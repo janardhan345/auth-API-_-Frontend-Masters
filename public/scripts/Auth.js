@@ -13,6 +13,15 @@ const Auth = {
         } else {
             alert(response.message);
         }
+    // Credential management API storage 
+    if(window.PasswordCredential && user.password) {
+        const credentials = new PasswordCredential({
+            id: user.email,
+            password:user.password,
+            name: user.name
+        })
+        navigator.credentials.store(credentials);
+    }
     },
 
     register: async (event) => {
@@ -24,10 +33,7 @@ const Auth = {
            password:document.getElementById("register_password").value 
         }
         const response = await API.register(user);
-        Auth.postLogin(response, {
-            name:user.name,
-            email:user.email
-        });
+        Auth.postLogin(response, user);
     },
     login: async (event) => {
         event.preventDefault();
@@ -41,11 +47,20 @@ const Auth = {
             name: response.name
         })
     }, 
+    autoLogin: async () => {
+        if(window.PasswordCredential) {
+            const credentials = await navigator.credentials.get({password:true});
+            console.log(credentials);
+        }
+    },
     logout: () =>{
         Auth.isLoggedIn = false;
         Auth.account =null;
         Auth.updateStatus();
         Router.go("/");
+        if(window.PasswordCredential){
+            navigator.credentials.preventSilentAccess();
+        }
     },
     updateStatus() {
         if (Auth.isLoggedIn && Auth.account) {
@@ -77,6 +92,7 @@ const Auth = {
     },
 }
 Auth.updateStatus();
+Auth.autoLogin();
 
 export default Auth;
 
